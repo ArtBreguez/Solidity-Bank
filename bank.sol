@@ -4,11 +4,15 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract Bank {
 
-    constructor(){
+    constructor() payable{
+        require(msg.value == 10 ether, "Set the inicial balance of contract on 10 ether");
         admin = payable(msg.sender);
     }
 
-    receive() external payable {}
+    receive() external payable {
+        require(debt_clients[msg.sender] = true, "You are not in debt");
+        debt_value[msg.sender] -= msg.value;
+    }
 
     struct Clients{
         string name;
@@ -65,7 +69,7 @@ contract Bank {
         debt_value[msg.sender] = _value;
     }
 
-    function getLoan(uint _amount) public payable returns(bool){
+    function makeALoan(uint _amount) public payable returns(bool){
         require(_amount != 0, "Amount can not be zero");
         require(msg.sender == payable(msg.sender), "Address must be payable");
         require(bank_clients[msg.sender].isClient == true, "Must be a verified client");
@@ -83,11 +87,11 @@ contract Bank {
         );
         return true;
     }
-    function payLoan(uint _amount) public payable returns(bool){ //não ta funcionando!!!!
-        require(msg.value == _amount);
-        require(bank_clients[msg.sender].isClient == true, "You are not a verified client");
-        require(debt_value[msg.sender]-_amount >= 0, "You can only payback values minor or equal your debt");
-        debt_value[msg.sender] -= _amount;
-        return true;        
-    }
+    //function payLoan(uint _amount) public payable returns(bool){ //não ta funcionando!!!!
+    //    require(msg.value == _amount);
+    //    require(bank_clients[msg.sender].isClient == true, "You are not a verified client");
+    //    require(debt_value[msg.sender]-_amount >= 0, "You can only payback values minor or equal your debt");
+    //    debt_value[msg.sender] -= _amount;
+    //    return true;        
+    //}
 }
