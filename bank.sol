@@ -26,6 +26,17 @@ contract Bank {
 
     address payable public admin;
     
+    event LogNewLoan(address indexed _client, uint _amount);
+    event LogDebtPayment(address indexed _client, uint _amount);
+
+    function getContractBalance()public view returns(uint){
+        return address(this).balance;
+    }
+
+    function getClientDebtBalance(address _client) public view returns(uint){
+        return debt_value[_client];
+    }
+
     function addClient(string calldata _name) public {
         require(msg.sender != admin, "Owner can not be a client");
         Clients memory client = Clients(_name, payable(msg.sender), false, "null", "null");
@@ -47,7 +58,7 @@ contract Bank {
     function verifiedClient(address payable _address) external {
         require(msg.sender == admin, "Not the owner!");
         bank_clients[_address].isClient = true;
-        amount_user_can_loan[_address] = 1 ether;
+        amount_user_can_loan[_address] = 1 ether; // não ta funcionando!!! 
     }
     function setInDebt(uint _value) internal {
         debt_clients[msg.sender] = true;
@@ -63,9 +74,20 @@ contract Bank {
         uint total_balance = address(this).balance;
         require(total_balance > _amount, "Sorry, we don't have this money to loan");
         uint amount_in_wei = (_amount*1000000000000000000);
-        payable(msg.sender).transfer(amount_in_wei);
         debt_clients[msg.sender] = true;
         debt_value[msg.sender] = _amount;
+        payable(msg.sender).transfer(amount_in_wei);
+        emit LogNewLoan(
+            msg.sender,
+            _amount
+        );
         return true;
+    }
+    function payLoan(uint _amount) public payable returns(bool){ //não ta funcionando!!!!
+        require(msg.value == _amount);
+        require(bank_clients[msg.sender].isClient == true, "You are not a verified client");
+        require(debt_value[msg.sender]-_amount >= 0, "You can only payback values minor or equal your debt");
+        debt_value[msg.sender] -= _amount;
+        return true;        
     }
 }
