@@ -85,6 +85,14 @@ contract Bank {
         debt_value[msg.sender] = _value;
     }
 
+    /// @notice Update how much user can borrow from the contract
+    /// @param _address User address
+    /// @param _new_amount User new borrow limit
+    function updateAmountUserCanLoan(address _address, uint _new_amount) external {
+        require(msg.sender == admin, "Not the owner!");
+        amount_user_can_loan[_address] = _new_amount;
+    }
+
     /// @notice Lend verified users ether
     /// @param _amount Amount of money user wants to borrow in ether
     /// @return bool True in case the transaction did well or false in case transcation fails
